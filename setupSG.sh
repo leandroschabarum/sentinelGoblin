@@ -49,13 +49,12 @@ then
 	# to remove it just comment it out or delete the line
 	EOF
 
-	# copying source files to base directory
-	# fill in code \(^v^)/
+	cp globalsSG.sh funcsSG.sh sentinelGoblin.sh "$BASE_DIR/"
 fi
 
-if [[ ! -f "$BASE_DIR/${CONFIG_FILE:?'config file variable not set'}" ]]
+if [[ ! -f "$BASE_DIR/${CONF_FILE:?'config file variable not set'}" ]]
 # setting up configuration file
 then
-	cp "$(pwd)/gold.conf" "$BASE_DIR/"
+	cp gold.conf "$BASE_DIR/"
 	# fill in code for configuration file \(^v^)/
 fi
