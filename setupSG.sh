@@ -50,6 +50,8 @@ then
 	EOF
 
 	cp globalsSG.sh funcsSG.sh sentinelGoblin.sh "$BASE_DIR/"
+	cp sentinelGoblin.service /lib/systemd/system/
+	ln -s /lib/systemd/system/sentinelGoblin.service /etc/systemd/system/
 fi
 
 if [[ ! -f "$BASE_DIR/${CONF_FILE:?'config file variable not set'}" ]]
@@ -58,3 +60,5 @@ then
 	touch "$BASE_DIR/$CONF_FILE"
 	# fill in code for configuration file \(^v^)/
 fi
+
+echo "< finished setting up sentinelGoblin >" && cat .logoSG

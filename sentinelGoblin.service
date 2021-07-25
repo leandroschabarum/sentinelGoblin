@@ -4,7 +4,7 @@ Documentation=https://github.com/leandroschabarum/sentinelGoblin
 
 [Service]
 WorkingDirectory=/opt/sentinelGoblin
-ExecStart=./runSG.sh
+ExecStart=bash sentinelGoblin.sh
 User=root
 Type=simple
 Restart=on-failure
