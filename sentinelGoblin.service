@@ -1,0 +1,18 @@
+[Unit]
+Description=SentinelGoblin application service
+Documentation=https://github.com/leandroschabarum/sentinelGoblin
+
+[Service]
+WorkingDirectory=/opt/sentinelGoblin
+ExecStart=./runSG.sh
+User=root
+Type=simple
+Restart=on-failure
+RestartSec=5
+PIDFile=file:/opt/sentinelGoblin/.pid
+StandardOutput=file:/var/log/sentinelGoblin.log
+StandardError=file:/var/log/sentinelGoblin.log
+SyslogIdentifier=sentinelGoblin
+
+[Install]
+WantedBy=multi-user.target
