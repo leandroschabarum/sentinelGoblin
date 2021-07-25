@@ -41,6 +41,14 @@ then
 		exit 1
 	fi
 
+	mkdir "$BASE_DIR/overwatch.d"
+	touch "$BASE_DIR/overwatch.d/SG.local"
+	cat <<- EOF > "$BASE_DIR/overwatch.d/SG.local"
+	# SentinelGoblin extra overwatches can be set here
+	# to add one, simple write: overwatch "<command>" "<name>"
+	# to remove it just comment it out or delete the line
+	EOF
+
 	# copying source files to base directory
 	# fill in code \(^v^)/
 fi

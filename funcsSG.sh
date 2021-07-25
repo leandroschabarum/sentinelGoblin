@@ -149,7 +149,8 @@ diffChanges()
 	# checks if there are differences between files
 	then
 		CHANGES="$(diff "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old")"
-		echo "${CHANGES:?'CHANGES variable is empty'}"
+		echo "$(date +"[%Y-%m-%d %H:%M:%S]") changes were detected in ${FILE##*/}" >> "$LOG_FILE"
+		echo "${CHANGES:?'CHANGES variable is empty'}" >> "$LOG_FILE"
 		return 0
 	fi
 
@@ -169,13 +170,15 @@ overwatch()
 	COMMAND="${1:?'command argument not passed to overwatch function call'}"
 	OUTPUT="${2:?'filename argument not passed to overwatch function call'}"
 
+	diffChanges "${OUTPUT##*/}"
+
 	if digCave
 	then
 		# evaluates command passed as string and
 		# keeps only basename for output file (case when path is given)
 		if ! eval "$COMMAND > $BASE_DIR/cave/${OUTPUT##*/}"
 		then
-			echo "$(date +"%Y%m%d - %H%M%S") FAILED: $COMMAND > $BASE_DIR/cave/${OUTPUT##*/}" >> "$LOG_FILE"
+			echo "$(date +"[%Y-%m-%d %H:%M:%S]") FAILED: $COMMAND > $BASE_DIR/cave/${OUTPUT##*/}" >> "$LOG_FILE"
 			return 1
 		fi
 	fi

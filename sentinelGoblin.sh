@@ -19,20 +19,17 @@ fi
 # checks for the existence of funcs file and sources from it, otherwise throws an error and exits with code 1
 [[ -f "$(pwd)/funcsSG.sh" ]] && source "$(pwd)/funcsSG.sh" || echo "< no funcsSG.sh file found >" && exit 1
 
-
-LOGGED=$(who | sha256sum | cut -d ' ' -f 1)
-
-FIREWALL=$(iptables -L | sha256sum | cut -d ' ' -f 1)
-overwatch "iptables -L" "firewall"
-
-OPENPORTS=$(netstat -tulpn | grep LISTEN | sha256sum | cut -d ' ' -f 1)
-overwatch "netstat -tulpn | grep LISTEN" "openports"
-
 while true
 do
-	logRitual "$LOG_FILE"
+	logRitual "$LOG_FILE" 15000000
 
-	# default overwatch routines #
+	# default overwatch routines
+	overwatch "who" "logins"
+	overwatch "iptables -L" "firewall"
+	overwatch "netstat -tulpn | grep LISTEN" "openports"
 
-	sleep 1
+	# also sources from overwatch.d/SG.local if it exists
+	# so that you can add your own overwatches there
+	# just be careful to not set the same overwatch name twice
+	[[ -f "$BASE_DIR/overwatch.d/SG.local" ]] && source "$BASE_DIR/overwatch.d/SG.local"
 done
