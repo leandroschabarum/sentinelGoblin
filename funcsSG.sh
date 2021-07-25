@@ -8,39 +8,45 @@
 # Contact: leandroschabarum.98@gmail.com                   #
 ############################################################
 
+# checks for the existence of globals file and sources from it, otherwise throws an error and exits with code 1
+[[ -f "$(pwd)/globalsSG.sh" ]] && source "$(pwd)/globalsSG.sh" || echo "< no globalsSG.sh file found >" && exit 1
 
-createLOG()
+
+makeLog()
 # Function for creating log file
 # $1 (required) ---> string | full path to log file to be created
 {
 	local LOG_FILE_PATH
 	# expected positional argument check
-	LOG_FILE_PATH="${1:?'log file full path argument not passed to createLOG function call'}"
+	LOG_FILE_PATH="${1:?'log file full path argument not passed to makeLog function call'}"
 
 	if [[ ! -f "${LOG_FILE_PATH:?'log file variable not set'}" ]]
 	# set up log file
 	then
-		if ! touch "$LOG_FILE_PATH"
+		if ! touch "$LOG_FILE_PATH" || [[ ! -w "$LOG_FILE_PATH" ]]
 		then
-			echo "< unable to create $LOG_FILE_PATH >" && exit 1
+			echo "< unable to create/write $LOG_FILE_PATH >"
+			return 1
 		fi
-		# redundant settings for privileges and ownership
+		# redundant settings for ownership
 		# kept in for nothing more than a simple sanity check
-		chmod 644 "$LOG_FILE_PATH"
+		chmod 640 "$LOG_FILE_PATH"
 		chown root:root "$LOG_FILE_PATH"
 	fi
+
+	return 0
 }
 
 
-logARCH()
+logRitual()
 # Function for log file rotation
 # $1 (required) ---> string | full path to log file
 # $2 (required) ---> number | max bytes size of log file
 {
 	local LOG_FILE_PATH MAX_SIZE CUR_SIZE COUNT LAST
 	# expected positional arguments check
-	LOG_FILE_PATH="${1:?'log file full path argument not passed to logARCH function call'}"
-	MAX_SIZE="${2:?'max bytes size argument not passed to logARCH function call'}"
+	LOG_FILE_PATH="${1:?'log file full path argument not passed to logRitual function call'}"
+	MAX_SIZE="${2:?'max bytes size argument not passed to logRitual function call'}"
 
 	if [[ -f "$LOG_FILE_PATH" ]]
 	# check existence of log file first
@@ -74,7 +80,7 @@ logARCH()
 
 			if mv "$LOG_FILE_PATH" "$LOG_FILE_PATH.$((LAST++))"
 			then
-				createLOG "$LOG_FILE_PATH"
+				makeLog "$LOG_FILE_PATH"
 				# returns 0 if log rotation went ok
 				return 0
 			fi
@@ -82,8 +88,95 @@ logARCH()
 			return 1
 		fi
 	else
-		createLOG "$LOG_FILE_PATH"
-		# returns 2 if there was no log file when logARCH call happened
+		makeLog "$LOG_FILE_PATH"
+		# returns 2 if there was no log file when logRitual call happened
 		return 2
+	fi
+}
+
+digCave()
+# Function for creating cave directory in order to hold overwatch output
+{
+	if [[ ! -d "$BASE_DIR/cave" ]]
+	then
+		if mkdir "$BASE_DIR/cave"
+		then
+			# redundant settings for ownership
+			# set anyways for sanity check
+			chmod 700 "$BASE_DIR/cave"
+			chown root:root "$BASE_DIR/cave"
+			# all went ok
+			return 0
+		fi
+		# something wrong happened
+		return 1
+	fi
+	# no need to create cave directory
+	return 0
+}
+
+
+checkSum()
+# Function for checking if there were changes to output of overwatch
+# $1 (required) ---> string | updated filename with new contents
+{
+	local FILE NEW_HASH OLD_HASH
+	# expected positional argument check
+	FILE="${1:?'updated file argument not passed to checkSum function call'}"
+
+	if [[ -f "$BASE_DIR/cave/${FILE##*/}_old" && -f "$BASE_DIR/cave/${FILE##*/}" ]]
+	# if both files exist (file && file_old) run the checksum to see if they have changed
+	then
+		NEW_HASH="$(sha256sum "$BASE_DIR/cave/${FILE##*/}" | cut -d ' ' -f 1)"
+		OLD_HASH="$(sha256sum "$BASE_DIR/cave/${FILE##*/}_old" | cut -d ' ' -f 1)"
+
+		[[ "$NEW_HASH" == "$OLD_HASH" ]] && return 0
+	fi
+
+	return 1
+}
+
+
+diffChanges()
+# Function for returning changes to file contents stored in the cave
+# $1 (required) ---> string | updated filename with new contents
+{
+	local FILE CHANGES
+	# expected positional argument check
+	FILE="${1:?'updated file argument not passed to diffChanges function call'}"
+
+	if checkSum "${FILE##*/}"
+	# checks if there are differences between files
+	then
+		CHANGES="$(diff "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old")"
+		echo "${CHANGES:?'CHANGES variable is empty'}"
+		return 0
+	fi
+
+	cp -a "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old"
+
+	return 1
+}
+
+
+overwatch()
+# Function for setting up overwatch on bash commands
+# $1 (required) ---> string | command to set overwatch
+# $2 (required) ---> string | filename for overwatch output
+{
+	local COMMAND OUTPUT
+	# expected positional arguments check
+	COMMAND="${1:?'command argument not passed to overwatch function call'}"
+	OUTPUT="${2:?'filename argument not passed to overwatch function call'}"
+
+	if digCave
+	then
+		# evaluates command passed as string and
+		# keeps only basename for output file (case when path is given)
+		if ! eval "$COMMAND > $BASE_DIR/cave/${OUTPUT##*/}"
+		then
+			echo "$(date +"%Y%m%d - %H%M%S") FAILED: $COMMAND > $BASE_DIR/cave/${OUTPUT##*/}" >> "$LOG_FILE"
+			return 1
+		fi
 	fi
 }
