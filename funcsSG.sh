@@ -8,9 +8,6 @@
 # Contact: leandroschabarum.98@gmail.com                   #
 ############################################################
 
-# checks for the existence of globals file and sources from it, otherwise throws an error and exits with code 1
-[[ -f "$(pwd)/globalsSG.sh" ]] && source "$(pwd)/globalsSG.sh" || echo "< no globalsSG.sh file found >" && exit 1
-
 
 makeLog()
 # Function for creating log file
