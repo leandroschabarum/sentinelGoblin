@@ -15,9 +15,9 @@ then
 	echo ">>>> EXECUTION DENIED - ROOT ACCESS REQUIRED <<<<" && exit 1
 fi
 
-# checks for the existence of globals file and sources from it, otherwise throws an error and exits with code 1
+# checks for the existence of globals file and sources from it, otherwise throws an error
 [[ -f "$(pwd)/globalsSG.sh" ]] && source "$(pwd)/globalsSG.sh" || echo "< no globalsSG.sh file found >"
-# checks for the existence of funcs file and sources from it, otherwise throws an error and exits with code 1
+# checks for the existence of funcs file and sources from it, otherwise throws an error
 [[ -f "$(pwd)/funcsSG.sh" ]] && source "$(pwd)/funcsSG.sh" || echo "< no funcsSG.sh file found >"
 
 makeLog "${LOG_FILE:?'log file variable not set'}"

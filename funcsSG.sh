@@ -18,7 +18,7 @@ makeLog()
 	LOG_FILE_PATH="${1:?'log file full path argument not passed to makeLog function call'}"
 
 	if [[ ! -f "${LOG_FILE_PATH:?'log file variable not set'}" ]]
-	# set up log file
+	# sets up log file
 	then
 		if ! touch "$LOG_FILE_PATH" || [[ ! -w "$LOG_FILE_PATH" ]]
 		then
