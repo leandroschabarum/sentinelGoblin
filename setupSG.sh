@@ -59,7 +59,9 @@ if [[ ! -f "$BASE_DIR/${CONF_FILE:?'config file variable not set'}" ]]
 # setting up configuration file
 then
 	touch "$BASE_DIR/$CONF_FILE"
-	# fill in code for configuration file \(^v^)/
+	cat <<- EOF > "$BASE_DIR/$CONF_FILE"
+	# configuration file for sentinelGoblin
+	EOF
 fi
 
 echo "< finished setting up sentinelGoblin >"

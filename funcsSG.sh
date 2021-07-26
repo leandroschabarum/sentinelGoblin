@@ -126,10 +126,10 @@ checkSum()
 	then
 		NEW_HASH="$(sha256sum "$BASE_DIR/cave/${FILE##*/}" | cut -d ' ' -f 1)"
 		OLD_HASH="$(sha256sum "$BASE_DIR/cave/${FILE##*/}_old" | cut -d ' ' -f 1)"
-
+		# this result serves as a trigger only and can be used in an if statement
 		[[ "$NEW_HASH" != "$OLD_HASH" ]] && return 0
 	fi
-
+	# no changes were detected
 	return 1
 }
 
@@ -146,12 +146,13 @@ diffChanges()
 	# checks if there are differences between files
 	then
 		CHANGES="$(diff "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old")"
+		# changes are extracted and logged, but a notification system can be set up here
 		echo "$(date +"[%Y-%m-%d %H:%M:%S]") changes were detected in ${FILE##*/}" >> "$LOG_FILE"
 		echo "${CHANGES:?'CHANGES variable is empty'}" >> "$LOG_FILE"
 	fi
 
 	[[ -f "$BASE_DIR/cave/${FILE##*/}" ]] && cp -a "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old"
-	
+	# by default, copy over to file_old the contents of file
 	return 0
 }
 
@@ -166,11 +167,13 @@ overwatch()
 	COMMAND="${1:?'command argument not passed to overwatch function call'}"
 	OUTPUT="${2:?'filename argument not passed to overwatch function call'}"
 
+	# first checks if there were changes from the previous overwatch
 	diffChanges "${OUTPUT##*/}"
 
 	if digCave
+	# digCave is in place here for the occurence of the cave directory being deleted
 	then
-		# evaluates command passed as string and
+		# evaluates command passed as string and redirects it to file output
 		# keeps only basename for output file (case when path is given)
 		if ! eval "$COMMAND > $BASE_DIR/cave/${OUTPUT##*/}"
 		then
