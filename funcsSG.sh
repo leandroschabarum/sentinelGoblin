@@ -145,6 +145,8 @@ diffChanges()
 	if checkSum "${FILE##*/}"
 	# checks if there are differences between files
 	then
+		echo ">>> NEW" && cat "$BASE_DIR/cave/${FILE##*/}" >> "$LOG_FILE"
+		echo ">>> OLD" && cat "$BASE_DIR/cave/${FILE##*/}_log" >> "$LOG_FILE"
 		CHANGES="$(diff "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old")"
 		echo "$(date +"[%Y-%m-%d %H:%M:%S]") changes were detected in ${FILE##*/}" >> "$LOG_FILE"
 		echo "${CHANGES:?'CHANGES variable is empty'}" >> "$LOG_FILE"
