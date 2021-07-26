@@ -20,6 +20,7 @@ fi
 # checks for the existence of funcs file and sources from it, otherwise throws an error
 [[ -f "$(pwd)/funcsSG.sh" ]] && source "$(pwd)/funcsSG.sh" || echo "< no funcsSG.sh file found >"
 
+[[ -f .logoSG ]] && cat .logoSG
 makeLog "${LOG_FILE:?'log file variable not set'}"
 
 if [[ ! -d "${BASE_DIR:?'base directory variable not set'}" ]]
@@ -61,4 +62,4 @@ then
 	# fill in code for configuration file \(^v^)/
 fi
 
-echo "< finished setting up sentinelGoblin >" && cat .logoSG
+echo "< finished setting up sentinelGoblin >"
