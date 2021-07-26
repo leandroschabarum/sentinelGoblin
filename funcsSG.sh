@@ -153,6 +153,7 @@ diffChanges()
 	fi
 
 	[[ -f "$BASE_DIR/cave/${FILE##*/}" ]] && cp -a "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old"
+	
 	return 0
 }
 
@@ -179,4 +180,6 @@ overwatch()
 			return 1
 		fi
 	fi
+
+	return 0
 }
