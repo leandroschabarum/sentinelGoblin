@@ -127,7 +127,7 @@ checkSum()
 		NEW_HASH="$(sha256sum "$BASE_DIR/cave/${FILE##*/}" | cut -d ' ' -f 1)"
 		OLD_HASH="$(sha256sum "$BASE_DIR/cave/${FILE##*/}_old" | cut -d ' ' -f 1)"
 
-		[[ "$NEW_HASH" == "$OLD_HASH" ]] && return 0
+		[[ "$NEW_HASH" != "$OLD_HASH" ]] && return 0
 	fi
 
 	return 1
@@ -150,12 +150,10 @@ diffChanges()
 		CHANGES="$(diff "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old")"
 		echo "$(date +"[%Y-%m-%d %H:%M:%S]") changes were detected in ${FILE##*/}" >> "$LOG_FILE"
 		echo "${CHANGES:?'CHANGES variable is empty'}" >> "$LOG_FILE"
-		return 0
 	fi
 
 	[[ -f "$BASE_DIR/cave/${FILE##*/}" ]] && cp -a "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old"
-
-	return 1
+	return 0
 }
 
 
