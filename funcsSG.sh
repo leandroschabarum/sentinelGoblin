@@ -151,7 +151,7 @@ diffChanges()
 		return 0
 	fi
 
-	cp -a "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old"
+	[[ -f "$BASE_DIR/cave/${FILE##*/}" ]] && cp -a "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old"
 
 	return 1
 }
