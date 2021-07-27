@@ -1,0 +1,33 @@
+# ---- .gitignore file for pattern filtering files and directories ---- #
+# > for more information, visit https://docs.gitlab.com/                #
+# --------------------------------------------------------------------- #
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.pyo
+*.pyc
+*.bak
+*.swp
+*.swo
+*.orig
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.log
+*.sock
+*.sys
+*.ini
+*.conf
+*.cnf
+*.cfg
+*.cf
+*.pem
+test-*

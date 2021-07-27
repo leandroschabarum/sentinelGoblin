@@ -9,8 +9,8 @@
 ############################################################
 
 # ------------ default installation paths ------------ #
-BASE_DIR="/opt/sentinelGoblin"
-LOG_FILE="/var/log/sentinelGoblin.log"
-CONF_FILE="gold.conf"  # main configuration file
-PID_FILE="/opt/sentinelGoblin/.pid"
+SG_BASE_DIR="/opt/sentinelGoblin"
+SG_LOG_FILE="/var/log/sentinelGoblin.log"
+SG_CONF_FILE="gold.conf"  # main configuration file
+SG_PID_FILE="/opt/sentinelGoblin/.pid"
 # ---------------------------------------------------- #
