@@ -65,11 +65,15 @@ if [[ ! -f "$SG_BASE_DIR/${SG_CONF_FILE:?'config file variable not set'}" ]]
 then
 	touch "$SG_BASE_DIR/$SG_CONF_FILE"
 	cat <<- EOF > "$SG_BASE_DIR/$SG_CONF_FILE"
-	# configuration file for sentinelGoblin
+	#### main configuration file for sentinelGoblin ####
 
-	# Telegram chat bot
-	token='<fill_in_bot_token>'
-	chatid='<fill_in_group_chat_id>'
+	# cycle_delay refers to how long the script will sleep
+	# after running all overwatches (Defaults to 5 seconds)
+	cycle_delay=5 #seconds
+
+	# Telegram chat bot information for notifications
+	token=''
+	chatid=''
 	EOF
 
 	echo "< configuration file at $SG_BASE_DIR/$SG_CONF_FILE needs to be edited >"

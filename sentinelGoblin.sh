@@ -35,4 +35,5 @@ do
 	# just be careful to not set the same overwatch name twice
 	# PS. you can always put all overwatches there and leave this one empty
 	[[ -f "$SG_BASE_DIR/overwatch.d/SG.local" ]] && source "$SG_BASE_DIR/overwatch.d/SG.local"
+	sleep "${cycle_delay:=5}"
 done
