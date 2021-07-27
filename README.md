@@ -74,3 +74,18 @@ sudo systemctl enable sentinelGoblin
 ```
 
 That's it! SentinelGoblin should be running and enabled at boot.
+
+----
+
+#### OVERWATCH
+
+To set an overwatch you can simply add it to `/opt/sentinelGoblin/overwatch.d/SG.local` file.
+
+```bash
+# /opt/sentinelGoblin/overwatch.d/SG.local
+
+overwatch "<command_to_monitor>" "<identifier_for_filename>"
+```
+
+But remember that identifiers must be unique and meaningful,
+otherwise you may forget what they are about.
