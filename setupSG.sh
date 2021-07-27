@@ -69,7 +69,7 @@ then
 
 	# Telegram chat bot
 	token='<fill_in_bot_token>'
-	chaid='<fill_in_group_chat_id>'
+	chatid='<fill_in_group_chat_id>'
 	EOF
 
 	echo "< configuration file at $SG_BASE_DIR/$SG_CONF_FILE needs to be edited >"

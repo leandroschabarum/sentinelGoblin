@@ -120,13 +120,14 @@ alert()
 	local MSG RESPONSE
 	# expected positional argument check
 	MSG="${1:?'message argument not passed to alert() function call'}"
-	MSG="[!] $(date +"%Y-%m-%d %H:%M:%S")\\n$MSG"
+	MSG="<b>[!]</b> $(date +"%Y-%m-%d %H:%M:%S")\n$MSG"
 	# 'token' and 'chatid' variables come from configuration file
-	REQUEST_URL="https://api.telegram.org/bot${token:?'empty token'}/sendMessage?chat_id=${chatid:?'empty chatid'}&parse_mode=Markdown&text=${MSG:?'empty message'}"
+	REQUEST_URL="https://api.telegram.org/bot${token:?'empty token'}/sendMessage?chat_id=${chatid:?'empty chatid'}&parse_mode=HTML&text=${MSG:?'empty message'}"
 	# Telegram API request using curl and grep to retrieve confirmation that message was send successfully
 	RESPONSE="$(curl --location --request GET "$REQUEST_URL" 2>&1 | grep -Eo '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)"
 	# if no {"ok":true} response is received defaults to returning failed notication status
-	[[ "${RESPONSE:='false'}" =~ true ]] && return 0 || return 1
+	[[ "${RESPONSE:='false'}" =~ true ]] && return 0
+	echo -e "Failed to send Telegram notification\n$MSG" >> "$SG_LOG_FILE" && return 1  # DEBUG LINE
 }
 
 
