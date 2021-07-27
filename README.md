@@ -46,7 +46,7 @@ sandboxes instead of given it a go for real.
 
 #### DEPENDENCIES
 
-Something as simple as *\<your package manager here\> install \<package\>* should take care of it!
+Something as simple as `<your_package_manager_here> install <package>` should take care of it!
 
 - curl
 
@@ -63,7 +63,7 @@ cd sentinelGoblin
 sudo bash setupSG.sh
 ```
 
-Now you can make changes to your configuration file at /opt/sentinelGoblin/gold.conf
+Now you can make changes to your configuration file at `/opt/sentinelGoblin/gold.conf`
 to enable Telegram notifications (curl required).
 
 When that is done, sentinelGoblin service is ready to be started.
