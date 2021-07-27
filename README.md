@@ -16,8 +16,6 @@
 
 ## DESCRIPTION
 
-----
-
 SentinelGoblin is a file monitor that retrieves command outputs and
 detects changes in them. Those changes can be useful when fixing bad
 modifications to configuration files, firewall rules, listening ports
