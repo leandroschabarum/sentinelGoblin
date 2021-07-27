@@ -15,7 +15,7 @@ makeLog()
 {
 	local LOG_FILE_PATH
 	# expected positional argument check
-	LOG_FILE_PATH="${1:?'log file full path argument not passed to makeLog function call'}"
+	LOG_FILE_PATH="${1:?'log file full path argument not passed to makeLog() function call'}"
 
 	if [[ ! -f "${LOG_FILE_PATH:?'log file variable not set'}" ]]
 	# sets up log file
@@ -42,8 +42,8 @@ logRitual()
 {
 	local LOG_FILE_PATH MAX_SIZE CUR_SIZE COUNT LAST
 	# expected positional arguments check
-	LOG_FILE_PATH="${1:?'log file full path argument not passed to logRitual function call'}"
-	MAX_SIZE="${2:?'max bytes size argument not passed to logRitual function call'}"
+	LOG_FILE_PATH="${1:?'log file full path argument not passed to logRitual() function call'}"
+	MAX_SIZE="${2:?'max bytes size argument not passed to logRitual() function call'}"
 
 	if [[ -f "$LOG_FILE_PATH" ]]
 	# check existence of log file first
@@ -94,14 +94,14 @@ logRitual()
 digCave()
 # Function for creating cave directory in order to hold overwatch output
 {
-	if [[ ! -d "$BASE_DIR/cave" ]]
+	if [[ ! -d "$SG_BASE_DIR/cave" ]]
 	then
-		if mkdir "$BASE_DIR/cave"
+		if mkdir "$SG_BASE_DIR/cave"
 		then
 			# redundant settings for ownership
 			# set anyways for sanity check
-			chmod 700 "$BASE_DIR/cave"
-			chown root:root "$BASE_DIR/cave"
+			chmod 700 "$SG_BASE_DIR/cave"
+			chown root:root "$SG_BASE_DIR/cave"
 			# all went ok
 			return 0
 		fi
@@ -113,19 +113,36 @@ digCave()
 }
 
 
+alert()
+# Function for Telegram notification messages
+# $1 (required) ---> string | message to be sent to Telegram chat
+{
+	local MSG RESPONSE
+	# expected positional argument check
+	MSG="${1:?'message argument not passed to alert() function call'}"
+	MSG="[!] $(date +"%Y-%m-%d %H:%M:%S")\\n$MSG"
+	# 'token' and 'chatid' variables come from configuration file
+	REQUEST_URL="https://api.telegram.org/bot${token:?'empty token'}/sendMessage?chat_id=${chatid:?'empty chatid'}&parse_mode=Markdown&text=${MSG:?'empty message'}"
+	# Telegram API request using curl and grep to retrieve confirmation that message was send successfully
+	RESPONSE="$(curl --location --request GET "$REQUEST_URL" 2>&1 | grep -Eo '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)"
+	# if no {"ok":true} response is received defaults to returning failed notication status
+	[[ "${RESPONSE:='false'}" =~ true ]] && return 0 || return 1
+}
+
+
 checkSum()
 # Function for checking if there were changes to output of overwatch
 # $1 (required) ---> string | updated filename with new contents
 {
 	local FILE NEW_HASH OLD_HASH
 	# expected positional argument check
-	FILE="${1:?'updated file argument not passed to checkSum function call'}"
+	FILE="${1:?'updated file argument not passed to checkSum() function call'}"
 
-	if [[ -f "$BASE_DIR/cave/${FILE##*/}_old" && -f "$BASE_DIR/cave/${FILE##*/}" ]]
+	if [[ -f "$SG_BASE_DIR/cave/${FILE##*/}_old" && -f "$SG_BASE_DIR/cave/${FILE##*/}" ]]
 	# if both files exist (file && file_old) run the checksum to see if they have changed
 	then
-		NEW_HASH="$(sha256sum "$BASE_DIR/cave/${FILE##*/}" | cut -d ' ' -f 1)"
-		OLD_HASH="$(sha256sum "$BASE_DIR/cave/${FILE##*/}_old" | cut -d ' ' -f 1)"
+		NEW_HASH="$(sha256sum "$SG_BASE_DIR/cave/${FILE##*/}" | cut -d ' ' -f 1)"
+		OLD_HASH="$(sha256sum "$SG_BASE_DIR/cave/${FILE##*/}_old" | cut -d ' ' -f 1)"
 		# this result serves as a trigger only and can be used in an if statement
 		[[ "$NEW_HASH" != "$OLD_HASH" ]] && return 0
 	fi
@@ -140,18 +157,18 @@ diffChanges()
 {
 	local FILE CHANGES
 	# expected positional argument check
-	FILE="${1:?'updated file argument not passed to diffChanges function call'}"
+	FILE="${1:?'updated file argument not passed to diffChanges() function call'}"
 
 	if checkSum "${FILE##*/}"
 	# checks if there are differences between files
 	then
-		CHANGES="$(diff "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old")"
+		CHANGES="$(diff "$SG_BASE_DIR/cave/${FILE##*/}" "$SG_BASE_DIR/cave/${FILE##*/}_old")"
 		# changes are extracted and logged, but a notification system can be set up here
-		echo "$(date +"[%Y-%m-%d %H:%M:%S]") changes were detected in ${FILE##*/}" >> "$LOG_FILE"
-		echo "${CHANGES:?'CHANGES variable is empty'}" >> "$LOG_FILE"
+		echo "$(date +"[%Y-%m-%d %H:%M:%S]") changes were detected in ${FILE##*/}" >> "$SG_LOG_FILE"
+		echo "${CHANGES:?'CHANGES variable is empty'}" >> "$SG_LOG_FILE"
 	fi
 
-	[[ -f "$BASE_DIR/cave/${FILE##*/}" ]] && cp -a "$BASE_DIR/cave/${FILE##*/}" "$BASE_DIR/cave/${FILE##*/}_old"
+	[[ -f "$SG_BASE_DIR/cave/${FILE##*/}" ]] && cp -a "$SG_BASE_DIR/cave/${FILE##*/}" "$SG_BASE_DIR/cave/${FILE##*/}_old"
 	# by default, copy over to file_old the contents of file
 	return 0
 }
@@ -164,8 +181,8 @@ overwatch()
 {
 	local COMMAND OUTPUT
 	# expected positional arguments check
-	COMMAND="${1:?'command argument not passed to overwatch function call'}"
-	OUTPUT="${2:?'filename argument not passed to overwatch function call'}"
+	COMMAND="${1:?'command argument not passed to overwatch() function call'}"
+	OUTPUT="${2:?'filename argument not passed to overwatch() function call'}"
 
 	# first checks if there were changes from the previous overwatch
 	diffChanges "${OUTPUT##*/}"
@@ -175,9 +192,9 @@ overwatch()
 	then
 		# evaluates command passed as string and redirects it to file output
 		# keeps only basename for output file (case when path is given)
-		if ! eval "$COMMAND > $BASE_DIR/cave/${OUTPUT##*/}"
+		if ! eval "$COMMAND > $SG_BASE_DIR/cave/${OUTPUT##*/}"
 		then
-			echo "$(date +"[%Y-%m-%d %H:%M:%S]") FAILED: $COMMAND > $BASE_DIR/cave/${OUTPUT##*/}" >> "$LOG_FILE"
+			echo "$(date +"[%Y-%m-%d %H:%M:%S]") FAILED: $COMMAND > $SG_BASE_DIR/cave/${OUTPUT##*/}" >> "$SG_LOG_FILE"
 			return 1
 		fi
 	fi
