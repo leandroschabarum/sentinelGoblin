@@ -172,7 +172,7 @@ diffChanges()
 	# checks if there are differences between files
 	then
 		CHANGES="$(diff "$SG_BASE_DIR/cave/${FILE##*/}" "$SG_BASE_DIR/cave/${FILE##*/}_old")"
-		alert "changes were detected in ${FILE##*/} overwatch"
+		alert "changes were detected in <b>${FILE##*/}</b> overwatch"
 		# changes are extracted and logged
 		echo "$(date +"[%Y-%m-%d %H:%M:%S]") changes were detected in ${FILE##*/}" >> "$SG_LOG_FILE"
 		echo "${CHANGES:?'CHANGES variable is empty'}" >> "$SG_LOG_FILE"

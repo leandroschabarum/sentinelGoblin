@@ -21,6 +21,7 @@ fi
 
 while true
 do
+	# Log rotation happens when file reaches 15MB in size
 	logRitual "$SG_LOG_FILE" 15000000
 	[[ -f "$SG_BASE_DIR/$SG_CONF_FILE" ]] && source "$SG_BASE_DIR/$SG_CONF_FILE"
 
@@ -32,5 +33,6 @@ do
 	# also sources from overwatch.d/SG.local if it exists
 	# so that you can add your own overwatches there
 	# just be careful to not set the same overwatch name twice
+	# PS. you can always put all overwatches there and leave this one empty
 	[[ -f "$SG_BASE_DIR/overwatch.d/SG.local" ]] && source "$SG_BASE_DIR/overwatch.d/SG.local"
 done
