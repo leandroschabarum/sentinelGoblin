@@ -21,4 +21,4 @@ ${1:?'empty message'}
 EOF
 
 alert "<b>$INFO</b>"
-echo "$(date +"[%Y-%m-%d %H:%M:%S]") $INFO" >> "$SG_LOG_FILE""
+echo "$(date +"[%Y-%m-%d %H:%M:%S]") $INFO" >> "$SG_LOG_FILE"
