@@ -9,7 +9,7 @@
 ############################################################
 
 if [[ "$(id -u)" -ne 0 ]]
-# enforces root privileges for setup execution
+# enforces root privileges for execution
 then
 	echo ">>>> EXECUTION DENIED - ROOT ACCESS REQUIRED <<<<" && exit 1
 fi
@@ -35,5 +35,5 @@ do
 	# just be careful to not set the same overwatch name twice
 	# PS. you can always put all overwatches there and leave this one empty
 	[[ -f "$SG_BASE_DIR/overwatch.d/SG.local" ]] && source "$SG_BASE_DIR/overwatch.d/SG.local"
-	sleep "${cycle_delay:=5}"
+	sleep "${cycle_delay:=3}"
 done

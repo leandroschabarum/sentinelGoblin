@@ -12,5 +12,4 @@
 SG_BASE_DIR="/opt/sentinelGoblin"
 SG_LOG_FILE="/var/log/sentinelGoblin.log"
 SG_CONF_FILE="gold.conf"  # main configuration file
-SG_PID_FILE="/opt/sentinelGoblin/.pid"
 # ---------------------------------------------------- #

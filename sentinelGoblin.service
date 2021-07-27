@@ -3,14 +3,17 @@ Description=SentinelGoblin application service
 Documentation=https://github.com/leandroschabarum/sentinelGoblin
 
 [Service]
-WorkingDirectory=/opt/sentinelGoblin
-ExecStart=bash sentinelGoblin.sh
-User=root
 Type=simple
+User=root
+WorkingDirectory=/opt/sentinelGoblin
+ExecStartPre= bash procNotif.sh ""
+ExecStart=bash sentinelGoblin.sh
+ExecStartPost=bash procNotif.sh ""
 Restart=on-failure
-RestartSec=5
-StandardOutput=file:/var/log/sentinelGoblin.log
-StandardError=file:/var/log/sentinelGoblin.log
+RestartSec=15
+StandardOutput=append:/var/log/sentinelGoblin.log
+StandardError=append:/var/log/sentinelGoblin.log
+CPUQuota=5%
 
 [Install]
 WantedBy=multi-user.target

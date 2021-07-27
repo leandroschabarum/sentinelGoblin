@@ -55,7 +55,7 @@ then
 	# to remove it just comment it out or delete the line
 	EOF
 
-	cp globalsSG.sh funcsSG.sh sentinelGoblin.sh "$SG_BASE_DIR/"
+	cp globalsSG.sh funcsSG.sh sentinelGoblin.sh procNotif.sh "$SG_BASE_DIR/"
 	cp sentinelGoblin.service /lib/systemd/system/
 	ln -s /lib/systemd/system/sentinelGoblin.service /etc/systemd/system/
 fi
@@ -68,8 +68,8 @@ then
 	#### main configuration file for sentinelGoblin ####
 
 	# cycle_delay refers to how long the script will sleep
-	# after running all overwatches (Defaults to 5 seconds)
-	cycle_delay=5 #seconds
+	# after running all overwatches (Defaults to 3 seconds)
+	cycle_delay=1 #seconds
 
 	# Telegram chat bot information for notifications
 	token=''
