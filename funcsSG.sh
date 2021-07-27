@@ -117,18 +117,25 @@ alert()
 # Function for Telegram notification messages
 # $1 (required) ---> string | message to be sent to Telegram chat
 {
-	local MSG RESPONSE OK
-	# expected positional argument check
-	MSG="${1:?'message argument not passed to alert() function call'}"
-	MSG="<b>[!]</b> $(date +"%Y-%m-%d %H:%M:%S")\n$MSG"
+	local MSG RESPONSE
+	# expected positional argument check and message composition
+	read -r -d '' MSG <<- EOF
+	&#10071; <i>$(date +"%Y-%m-%d %H:%M:%S")</i>
+	${1:?'message argument not passed to alert() function call'}
+	EOF
+
 	# 'token' and 'chatid' variables come from configuration file
-	REQUEST_URL="https://api.telegram.org/bot${token:?'empty token'}/sendMessage?chat_id=${chatid:?'empty chatid'}&parse_mode=HTML&text=${MSG:?'empty message'}"
+	REQUEST_URL="https://api.telegram.org/bot${token:?'empty token'}/sendMessage"
 	# Telegram API request using curl and grep to retrieve confirmation that message was send successfully
-	RESPONSE="$(curl --location --request GET "$REQUEST_URL" 2>&1)" #"grep -Eo '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)"
-	# if no {"ok":true} response is received defaults to returning failed notication status
-	OK="$(echo "$RESPONSE" | grep -Eo '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)"
-	[[ "${OK:='false'}" =~ true ]] && return 0
-	echo -e "Failed to send Telegram notification\\n$RESPONSE\\n$MSG" >> "$SG_LOG_FILE" && return 1  # DEBUG LINE
+	RESPONSE="$(curl --location -G \
+		--data-urlencode "chat_id=${chatid:?'empty chatid'}" \
+		--data-urlencode "parse_mode=HTML" \
+		--data-urlencode "text=${MSG:?'empty message'}" \
+		"$REQUEST_URL" 2>&1)"
+
+	# if no {"ok":true} response is received, defaults to returning failed notication status
+	[[ "$(echo "$RESPONSE" | grep -Eo '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)" =~ true ]] && return 0
+	echo "$(date +"[%Y-%m-%d %H:%M:%S]") failed to send Telegram notification <${RESPONSE:='empty'}>" >> "$SG_LOG_FILE" && return 1
 }
 
 
