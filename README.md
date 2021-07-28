@@ -11,7 +11,7 @@
          ██║   ██║██║   ██║██╔══██╗██║     ██║██║╚██╗██║         
          ╚██████╔╝╚██████╔╝██████╔╝███████╗██║██║ ╚████║         
           ╚═════╝  ╚═════╝ ╚═════╝ ╚══════╝╚═╝╚═╝  ╚═══╝         
-                                                           v1.1.0
+                                                           v1.1.1
 ```
 
 ## DESCRIPTION
@@ -60,11 +60,11 @@ The basic steps to set up sentinelGoblin are as follows:
 clone https://github.com/leandroschabarum/sentinelGoblin.git
 
 cd sentinelGoblin
-sudo bash setupSG.sh
+sudo bash utils/setupSG.sh
 ```
 
 Now you can make changes to your configuration file at `/opt/sentinelGoblin/gold.conf`
-to enable Telegram notifications (curl required).
+to enable Telegram notifications (curl is required).
 
 When that is done, sentinelGoblin service is ready to be started.
 
@@ -74,6 +74,16 @@ sudo systemctl enable sentinelGoblin
 ```
 
 That's it! SentinelGoblin should be running and enabled at boot.
+
+
+To remove sentinelGoblin the steps are pretty simple too.
+
+```bash
+sudo systemctl stop sentinelGoblin
+
+# from the cloned repository execute
+sudo bash utils/purgeSG.sh
+```
 
 ----
 

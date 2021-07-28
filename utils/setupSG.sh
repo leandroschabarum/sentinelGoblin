@@ -16,19 +16,21 @@ then
 fi
 
 # checks for the existence of globals file and sources from it, otherwise throws an error
-[[ -f "$(pwd)/globalsSG.sh" ]] && source "$(pwd)/globalsSG.sh" || echo "< no globalsSG.sh file found >"
+[[ -f SG_globals.sh ]] && source SG_globals.sh || echo "< no SG_globals.sh file found >"
 # checks for the existence of funcs file and sources from it, otherwise throws an error
-[[ -f "$(pwd)/funcsSG.sh" ]] && source "$(pwd)/funcsSG.sh" || echo "< no funcsSG.sh file found >"
+[[ -f SG_funcs.sh ]] && source SG_funcs.sh || echo "< no SG_funcs.sh file found >"
 
-if [[ "$(pwd)" == "${SG_BASE_DIR:?'base directory variable not set'}" ]]
+if [[ "$(pwd)" == "${SG_BASE_DIR:?'SG_BASE_DIR not set'}" ]]
 then
-	echo "[change repo placement] current directory cannot be the same as $SG_BASE_DIR" && exit 1
+	echo "[change repo placement] current directory can not be the same as $SG_BASE_DIR" && exit 1
 fi
 
+# cheeky way to show application logo ^^
 [[ -f .logoSG ]] && cat .logoSG
-makeLog "${SG_LOG_FILE:?'log file variable not set'}"
 
-if [[ ! -d "${SG_BASE_DIR:?'base directory variable not set'}" ]]
+makeLog "${SG_LOG_FILE:?'SG_LOG_FILE not set'}"
+
+if [[ ! -d "${SG_BASE_DIR:?'SG_BASE_DIR not set'}" ]]
 # setting up base directory
 then
 	if ! mkdir -p "$SG_BASE_DIR"
@@ -55,12 +57,15 @@ then
 	# to remove it just comment it out or delete the line
 	EOF
 
-	cp globalsSG.sh funcsSG.sh sentinelGoblin.sh "$SG_BASE_DIR/"
+	# copying source files to base directory
+	cp SG_globals.sh SG_funcs.sh sentinelGoblin.sh LICENSE procNotif.sh "$SG_BASE_DIR/"
+
+	# setting up systemd service file
 	cp sentinelGoblin.service /lib/systemd/system/
 	ln -s /lib/systemd/system/sentinelGoblin.service /etc/systemd/system/
 fi
 
-if [[ ! -f "$SG_BASE_DIR/${SG_CONF_FILE:?'config file variable not set'}" ]]
+if [[ ! -f "$SG_BASE_DIR/${SG_CONF_FILE:?'SG_CONF_FILE not set'}" ]]
 # setting up configuration file
 then
 	touch "$SG_BASE_DIR/$SG_CONF_FILE"
@@ -68,8 +73,8 @@ then
 	#### main configuration file for sentinelGoblin ####
 
 	# cycle_delay refers to how long the script will sleep
-	# after running all overwatches (Defaults to 5 seconds)
-	cycle_delay=5 #seconds
+	# after running all overwatches (Defaults to 3 seconds)
+	cycle_delay=1 #seconds
 
 	# Telegram chat bot information for notifications
 	token=''
