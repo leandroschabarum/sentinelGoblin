@@ -6,11 +6,10 @@ Documentation=https://github.com/leandroschabarum/sentinelGoblin
 Type=simple
 User=root
 WorkingDirectory=/opt/sentinelGoblin
-Environment="STA_MSG=starting sentinelGoblin..."
-Environment="END_MSG=stoping sentinelGoblin..."
-ExecStartPre= bash procNotif.sh ${STA_MSG}
+EnvironmentFile=/opt/sentinelGoblin/SG_globals.sh
+ExecStartPre=bash procNotif.sh $PROC_START_MSG
+ExecStopPre=bash procNotif.sh $PROC_STOP_MSG
 ExecStart=bash sentinelGoblin.sh
-ExecStopPre=bash procNotif.sh ${END_MSG}
 Restart=on-failure
 RestartSec=15
 StandardOutput=append:/var/log/sentinelGoblin.log
