@@ -124,7 +124,7 @@ alert()
 	local MSG RESPONSE
 	# expected positional argument check and message composition
 	read -r -d '' MSG <<- EOF
-	&#10071; <i>$(date +"%Y-%m-%d %H:%M:%S")</i>
+	&#10071; <b>[$(hostname)]</b> <i>$(date +"%Y-%m-%d %H:%M:%S")</i>
 	${1:?'message argument not passed to alert() function call'}
 	EOF
 
