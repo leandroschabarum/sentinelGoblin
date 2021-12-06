@@ -15,18 +15,21 @@ makeLog()
 {
 	local LOG_FILE_PATH
 	# expected positional argument check
-	LOG_FILE_PATH="${1:?'log file full path argument not passed to makeLog() function call'}"
+	LOG_FILE_PATH="${1:?'MISSING ARG: log file full path argument not passed to makeLog() function call'}"
+	[[ -z $LOG_FILE_PATH ]] && exit 1
 
-	if [[ ! -f "${LOG_FILE_PATH:?'log file variable not set'}" ]]
+	# if LOG_FILE_PATH does not exist or is not writable then
+	# attempt to create it and change its permissions
+	if [[ ! -w "${LOG_FILE_PATH:?'LOG_FILE_PATH not set'}" ]]
 	# sets up log file
 	then
-		if ! touch "$LOG_FILE_PATH" || [[ ! -w "$LOG_FILE_PATH" ]]
+		if ! touch "$LOG_FILE_PATH"
 		then
-			echo "< unable to create/write $LOG_FILE_PATH >"
+			echo -e "${red}ERROR: unable to create $LOG_FILE_PATH${reset}" >&2
 			return 1
 		fi
 		# redundant settings for ownership
-		# kept in for nothing more than a simple sanity check
+		# set anyways for sanity check
 		chmod 640 "$LOG_FILE_PATH"
 		chown root:root "$LOG_FILE_PATH"
 	fi
@@ -42,10 +45,11 @@ logRitual()
 {
 	local LOG_FILE_PATH MAX_SIZE CUR_SIZE COUNT LAST
 	# expected positional arguments check
-	LOG_FILE_PATH="${1:?'log file full path argument not passed to logRitual() function call'}"
-	MAX_SIZE="${2:?'max bytes size argument not passed to logRitual() function call'}"
+	LOG_FILE_PATH="${1:?'MISSING ARG: log file full path argument not passed to logRitual() function call'}"
+	MAX_SIZE="${2:?'MISSING ARG: max bytes size argument not passed to logRitual() function call'}"
+	[[ -z $MAX_SIZE ]] && exit 1
 
-	if [[ -f "$LOG_FILE_PATH" ]]
+	if [[ -w "$LOG_FILE_PATH" ]]
 	# check existence of log file first
 	# if file does not exist, default to creating it and returning 2
 	then
@@ -125,7 +129,7 @@ alert()
 	# expected positional argument check and message composition
 	read -r -d '' MSG <<- EOF
 	&#10071; <b>[$(hostname)]</b> <i>$(date +"%Y-%m-%d %H:%M:%S")</i>
-	${1:?'message argument not passed to alert() function call'}
+	${1:?'MISSING ARG: message argument not passed to alert() function call'}
 	EOF
 
 	REQUEST_URL="https://api.telegram.org/bot${token}/sendMessage"
@@ -133,11 +137,11 @@ alert()
 	RESPONSE="$(curl --location -G \
 		--data-urlencode "chat_id=${chatid}" \
 		--data-urlencode "parse_mode=HTML" \
-		--data-urlencode "text=${MSG:?'empty message'}" \
+		--data-urlencode "text=${MSG:?'ERROR: empty message'}" \
 		"$REQUEST_URL" 2>&1)"
 
 	# if no {"ok":true} response is received, defaults to returning failed notication status
-	[[ "$(echo "${RESPONSE:='empty'}" | grep -Eo '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)" =~ true ]] && return 0
+	[[ "$(echo "${RESPONSE:='empty'}" | grep -o -E '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)" =~ true ]] && return 0
 	echo "$(date +"[%Y-%m-%d %H:%M:%S]") failed to send Telegram notification <${RESPONSE:='empty'}>" >> "$SG_LOG_FILE" && return 1
 }
 
@@ -148,7 +152,7 @@ checkSum()
 {
 	local FILE NEW_HASH OLD_HASH
 	# expected positional argument check
-	FILE="${1:?'updated file argument not passed to checkSum() function call'}"
+	FILE="${1:?'MISSING ARG: updated file argument not passed to checkSum() function call'}"
 
 	if [[ -f "$SG_BASE_DIR/cave/${FILE##*/}_old" && -f "$SG_BASE_DIR/cave/${FILE##*/}" ]]
 	# if both files exist (file && file_old) run the checksum to see if they have changed
@@ -169,7 +173,7 @@ diffChanges()
 {
 	local FILE CHANGES
 	# expected positional argument check
-	FILE="${1:?'updated file argument not passed to diffChanges() function call'}"
+	FILE="${1:?'MISSING ARG: updated file argument not passed to diffChanges() function call'}"
 
 	if checkSum "${FILE##*/}"
 	# checks if there are differences between files
@@ -194,8 +198,8 @@ overwatch()
 {
 	local COMMAND OUTPUT
 	# expected positional arguments check
-	COMMAND="${1:?'command argument not passed to overwatch() function call'}"
-	OUTPUT="${2:?'filename argument not passed to overwatch() function call'}"
+	COMMAND="${1:?'MISSING ARG: command argument not passed to overwatch() function call'}"
+	OUTPUT="${2:?'MISSING ARG: filename argument not passed to overwatch() function call'}"
 
 	# first checks if there were changes from the previous overwatch
 	diffChanges "${OUTPUT##*/}"

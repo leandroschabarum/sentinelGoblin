@@ -8,18 +8,21 @@
 # Contact: leandroschabarum.98@gmail.com                   #
 ############################################################
 
+# shellcheck disable=SC1091
+[[ -r .colors ]] && source .colors
+
 # checks for the existence of globals file and sources from it, otherwise throws an error
-[[ -f SG_globals.sh ]] && source SG_globals.sh || echo "< no SG_globals.sh file found >"
+[[ -r SG_globals.sh ]] && source SG_globals.sh || echo -e "${red}ERROR: no SG_globals.sh file found${reset}" >&2
 # checks for the existence of funcs file and sources from it, otherwise throws an error
-[[ -f SG_funcs.sh ]] && source SG_funcs.sh || echo "< no SG_funcs.sh file found >"
+[[ -r SG_funcs.sh ]] && source SG_funcs.sh || echo -e "${red}ERROR: no SG_funcs.sh file found${reset}" >&2
 # checks for the existence of configuration file and sources from it, otherwise throws an error
-[[ -f "${SG_BASE_DIR:?'SG_BASE_DIR not set'}/${SG_CONF_FILE:?'SG_CONF_FILE not set'}" ]] && source "$SG_BASE_DIR/$SG_CONF_FILE" || echo "< no configuration file found >"
+[[ -r "${SG_BASE_DIR:?'SG_BASE_DIR not set'}/${SG_CONF_FILE:?'SG_CONF_FILE not set'}" ]] && source "$SG_BASE_DIR/$SG_CONF_FILE" || echo -e "${red}ERROR: no configuration file found${reset}" >&2
 
 # reads first positional argument passed
 # to script and creates message block
 read -r -d '' MSG <<- EOF
 >>> $(whoami)@$(hostname)
-${1:?'message must not be empty'}
+${1:?'MISSING ARG: message must not be empty'}
 EOF
 
 alert "$MSG"

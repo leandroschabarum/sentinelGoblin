@@ -26,7 +26,7 @@ then
 fi
 
 # cheeky way to show application logo ^^
-[[ -f .logoSG ]] && cat .logoSG
+[[ -r .logo ]] && cat .logo
 
 makeLog "${SG_LOG_FILE:?'SG_LOG_FILE not set'}"
 
