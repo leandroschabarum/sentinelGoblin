@@ -59,7 +59,7 @@ Something as simple as `<your_package_manager_here> install <package>` should ta
 The basic steps to set up sentinelGoblin are as follows:
 
 ```bash
-clone https://github.com/leandroschabarum/sentinelGoblin.git
+git clone https://github.com/leandroschabarum/sentinelGoblin.git
 
 cd sentinelGoblin
 sudo make install
@@ -83,7 +83,7 @@ To remove sentinelGoblin the steps are pretty simple too.
 ```bash
 sudo systemctl stop sentinelGoblin
 
-# from the cloned repository execute (cd /path/to/sentinelGoblin)
+# from the cloned repository (cd /path/to/sentinelGoblin), execute
 sudo make uninstall
 ```
 
