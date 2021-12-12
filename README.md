@@ -50,6 +50,7 @@ sandboxes instead of given it a go for real.
 Something as simple as `<your_package_manager_here> install <package>` should take care of it!
 
 - curl
+- make
 
 ----
 
@@ -61,7 +62,7 @@ The basic steps to set up sentinelGoblin are as follows:
 clone https://github.com/leandroschabarum/sentinelGoblin.git
 
 cd sentinelGoblin
-sudo bash utils/setupSG.sh
+sudo make install
 ```
 
 Now you can make changes to your configuration file at `/opt/sentinelGoblin/gold.conf`
@@ -82,8 +83,8 @@ To remove sentinelGoblin the steps are pretty simple too.
 ```bash
 sudo systemctl stop sentinelGoblin
 
-# from the cloned repository execute
-sudo bash utils/purgeSG.sh
+# from the cloned repository execute (cd /path/to/sentinelGoblin)
+sudo make uninstall
 ```
 
 ----
