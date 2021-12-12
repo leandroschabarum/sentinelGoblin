@@ -1,5 +1,5 @@
 # ---- .gitignore file for pattern filtering files and directories ---- #
-# > for more information, visit https://docs.gitlab.com/                #
+# > for more information, visit https://git-scm.com/docs/gitignore      #
 # --------------------------------------------------------------------- #
 *.com
 *.class

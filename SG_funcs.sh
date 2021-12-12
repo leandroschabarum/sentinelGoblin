@@ -8,25 +8,32 @@
 # Contact: leandroschabarum.98@gmail.com                   #
 ############################################################
 
+# shellcheck disable=SC2010
+# shellcheck disable=SC2012
+# shellcheck disable=SC2030
+# shellcheck disable=SC2031
+# shellcheck disable=SC2154
 
-makeLog()
 # Function for creating log file
-# $1 (required) ---> string | full path to log file to be created
+# $1  string (required)  full path to log file to be created
+makeLog()
 {
 	local LOG_FILE_PATH
-	# expected positional argument check
-	LOG_FILE_PATH="${1:?'log file full path argument not passed to makeLog() function call'}"
+	# required positional argument check
+	LOG_FILE_PATH="${1:?'MISSING ARG: log file absolute path argument not passed to makeLog() function call'}"
+	[[ -z $LOG_FILE_PATH ]] && exit 1
 
-	if [[ ! -f "${LOG_FILE_PATH:?'log file variable not set'}" ]]
-	# sets up log file
+	# if LOG_FILE_PATH does not exist or is not writable then
+	# attempt to create it and change its permissions
+	if [[ ! -w "${LOG_FILE_PATH:?'LOG_FILE_PATH not set'}" ]]
 	then
-		if ! touch "$LOG_FILE_PATH" || [[ ! -w "$LOG_FILE_PATH" ]]
+		if ! touch "$LOG_FILE_PATH"
 		then
-			echo "< unable to create/write $LOG_FILE_PATH >"
+			echo -e "${red}ERROR: unable to create $LOG_FILE_PATH${reset}" >&2
 			return 1
 		fi
 		# redundant settings for ownership
-		# kept in for nothing more than a simple sanity check
+		# set anyways for sanity check
 		chmod 640 "$LOG_FILE_PATH"
 		chown root:root "$LOG_FILE_PATH"
 	fi
@@ -34,20 +41,20 @@ makeLog()
 	return 0
 }
 
-
-logRitual()
 # Function for log file rotation
-# $1 (required) ---> string | full path to log file
-# $2 (required) ---> number | max bytes size of log file
+# $1  string (required)  full path to log file
+# $2  number (required)  max bytes size of log file
+logRitual()
 {
 	local LOG_FILE_PATH MAX_SIZE CUR_SIZE COUNT LAST
 	# expected positional arguments check
-	LOG_FILE_PATH="${1:?'log file full path argument not passed to logRitual() function call'}"
-	MAX_SIZE="${2:?'max bytes size argument not passed to logRitual() function call'}"
+	LOG_FILE_PATH="${1:?'MISSING ARG: log file absolute path argument not passed to logRitual() function call'}"
+	MAX_SIZE="${2:?'MISSING ARG: max bytes size argument not passed to logRitual() function call'}"
+	[[ -z $MAX_SIZE ]] && exit 1
 
-	if [[ -f "$LOG_FILE_PATH" ]]
-	# check existence of log file first
-	# if file does not exist, default to creating it and returning 2
+	# if LOG_FILE_PATH does not exist or is not writable
+	# then default to creating it and returning 2
+	if [[ -w "$LOG_FILE_PATH" ]]
 	then
 		CUR_SIZE="$(du --block=1 "$LOG_FILE_PATH" | cut -f 1)"
 
@@ -91,8 +98,8 @@ logRitual()
 	fi
 }
 
-digCave()
 # Function for creating cave directory in order to hold overwatch output
+digCave()
 {
 	if [[ ! -d "$SG_BASE_DIR/cave" ]]
 	then
@@ -112,10 +119,9 @@ digCave()
 	return 0
 }
 
-
-alert()
 # Function for Telegram notification messages
-# $1 (required) ---> string | message to be sent to Telegram chat
+# $1  string (required)  message to be sent to Telegram chat
+alert()
 {
 	# 'token' and 'chatid' variables come from configuration file
 	# in cases when they are not set (empty) skips function execution
@@ -125,30 +131,29 @@ alert()
 	# expected positional argument check and message composition
 	read -r -d '' MSG <<- EOF
 	&#10071; <b>[$(hostname)]</b> <i>$(date +"%Y-%m-%d %H:%M:%S")</i>
-	${1:?'message argument not passed to alert() function call'}
+	${1:?'MISSING ARG: message argument not passed to alert() function call'}
 	EOF
 
 	REQUEST_URL="https://api.telegram.org/bot${token}/sendMessage"
 	# Telegram API request using curl and grep to retrieve confirmation that message was send successfully
-	RESPONSE="$(curl --location -G \
+	RESPONSE="$(curl --location --request GET "$REQUEST_URL" \
 		--data-urlencode "chat_id=${chatid}" \
 		--data-urlencode "parse_mode=HTML" \
-		--data-urlencode "text=${MSG:?'empty message'}" \
-		"$REQUEST_URL" 2>&1)"
+		--data-urlencode "text=${MSG:?'ERROR: empty message'}" \
+		2>&1)"
 
 	# if no {"ok":true} response is received, defaults to returning failed notication status
-	[[ "$(echo "${RESPONSE:='empty'}" | grep -Eo '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)" =~ true ]] && return 0
+	[[ "$(echo "${RESPONSE:='empty'}" | grep -o -E '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)" =~ true ]] && return 0
 	echo "$(date +"[%Y-%m-%d %H:%M:%S]") failed to send Telegram notification <${RESPONSE:='empty'}>" >> "$SG_LOG_FILE" && return 1
 }
 
-
-checkSum()
 # Function for checking if there were changes to output of overwatch
-# $1 (required) ---> string | updated filename with new contents
+# $1  string (required)  updated filename with new contents
+checkSum()
 {
 	local FILE NEW_HASH OLD_HASH
 	# expected positional argument check
-	FILE="${1:?'updated file argument not passed to checkSum() function call'}"
+	FILE="${1:?'MISSING ARG: updated file argument not passed to checkSum() function call'}"
 
 	if [[ -f "$SG_BASE_DIR/cave/${FILE##*/}_old" && -f "$SG_BASE_DIR/cave/${FILE##*/}" ]]
 	# if both files exist (file && file_old) run the checksum to see if they have changed
@@ -162,23 +167,22 @@ checkSum()
 	return 1
 }
 
-
-diffChanges()
 # Function for returning changes to file contents stored in the cave
-# $1 (required) ---> string | updated filename with new contents
+# $1  string (required)  updated filename with new contents
+diffChanges()
 {
 	local FILE CHANGES
 	# expected positional argument check
-	FILE="${1:?'updated file argument not passed to diffChanges() function call'}"
+	FILE="${1:?'MISSING ARG: updated file argument not passed to diffChanges() function call'}"
 
 	if checkSum "${FILE##*/}"
 	# checks if there are differences between files
 	then
 		CHANGES="$(diff "$SG_BASE_DIR/cave/${FILE##*/}" "$SG_BASE_DIR/cave/${FILE##*/}_old")"
-		alert "changes were detected in <b>${FILE##*/}</b> overwatch"
+		alert "Changes were detected in <b>${FILE##*/}</b> overwatch"
 		# changes are extracted and logged
-		echo "$(date +"[%Y-%m-%d %H:%M:%S]") changes were detected in ${FILE##*/} overwatch" >> "$SG_LOG_FILE"
-		echo "${CHANGES:?'CHANGES variable is empty'}" >> "$SG_LOG_FILE"
+		echo "$(date +"[%Y-%m-%d %H:%M:%S]") Changes were detected in ${FILE##*/} overwatch" >> "$SG_LOG_FILE"
+		echo "${CHANGES:='ERROR: CHANGES variable is empty'}" >> "$SG_LOG_FILE"
 	fi
 
 	[[ -f "$SG_BASE_DIR/cave/${FILE##*/}" ]] && cp -a "$SG_BASE_DIR/cave/${FILE##*/}" "$SG_BASE_DIR/cave/${FILE##*/}_old"
@@ -186,24 +190,23 @@ diffChanges()
 	return 0
 }
 
-
-overwatch()
 # Function for setting up overwatch on bash commands
-# $1 (required) ---> string | command to set overwatch
-# $2 (required) ---> string | filename for overwatch output
+# $1  string (required)  command to set overwatch
+# $2  string (required)  filename for overwatch output
+overwatch()
 {
 	local COMMAND OUTPUT
 	# expected positional arguments check
-	COMMAND="${1:?'command argument not passed to overwatch() function call'}"
-	OUTPUT="${2:?'filename argument not passed to overwatch() function call'}"
+	COMMAND="${1:?'MISSING ARG: command argument not passed to overwatch() function call'}"
+	OUTPUT="${2:?'MISSING ARG: filename argument not passed to overwatch() function call'}"
 
 	# first checks if there were changes from the previous overwatch
 	diffChanges "${OUTPUT##*/}"
 
-	if digCave
 	# digCave is in place here for the occurence of the cave directory being deleted
+	if digCave
 	then
-		# evaluates command passed as string and redirects it to file output
+		# evaluates command passed as string and redirects its output to a file
 		# keeps only basename for output file (case when path is given)
 		if ! eval "$COMMAND > $SG_BASE_DIR/cave/${OUTPUT##*/}"
 		then

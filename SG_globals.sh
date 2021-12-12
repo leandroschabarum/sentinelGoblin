@@ -8,6 +8,9 @@
 # Contact: leandroschabarum.98@gmail.com                   #
 ############################################################
 
+# shellcheck disable=SC1117
+# shellcheck disable=SC2034
+
 # ------------ default installation paths ------------ #
 SG_BASE_DIR="/opt/sentinelGoblin"
 SG_LOG_FILE="/var/log/sentinelGoblin.log"
